@@ -1,0 +1,20 @@
+{
+  "name": "TPRandoLoader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "TPRandoLoader.js",
+  "core": "*",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Psi-Hate",
+  "license": "ISC",
+  "updateUrl": "https://github.com/hylian-modding/ML64-TPRandoLoader/releases/TPRandoLoader.pak",
+  "modloader64_deps": {
+    "TwilightPrincess": "https://github.com/hylian-modding/Core-TwilightPrincess"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.6.2"
+  }
+}
