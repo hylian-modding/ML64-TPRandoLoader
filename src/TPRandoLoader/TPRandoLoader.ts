@@ -71,7 +71,7 @@ class TPRandoLoader implements IPlugin {
             fs.writeFileSync(`./saves/${this.ModLoader.clientLobby}/Randomizer.us.gci`, this.randomizerGCI)
         } else {
             console.log("Downloading Randomizer.us.gci")
-            this.download("Randomizer.us.gci", "https://wiki.TPRandoLoadermizer.com/images/b/b2/Randomizer.us.gci", `./saves/${this.ModLoader.clientLobby}/Randomizer.us.gci`);
+            this.download("Randomizer.us.gci", "https://wiki.tprandomizer.com/images/b/b2/Randomizer.us.gci", `./saves/${this.ModLoader.clientLobby}/Randomizer.us.gci`);
         }
     }
 
@@ -79,6 +79,8 @@ class TPRandoLoader implements IPlugin {
         const res = nodeFetch(url).then(res => res.buffer()).then(buffer => {
             fs.writeFileSync(`./saves/${this.ModLoader.clientLobby}/${file}`, buffer)
             fs.writeFileSync(`./tpr/${file}`, buffer)
+        }).catch((err: any) => {
+            console.log(`Failed to download ${file}! Please manually aquire the file or try again later. ${err}`);
         })
     }
 

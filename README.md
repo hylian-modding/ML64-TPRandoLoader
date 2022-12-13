@@ -11,7 +11,7 @@ tpr
 └── Randomizer.us.gci
  ```
  
- If the mod does not detect these folders, it will generate them automatically. Furthermore, if the "Randomizer.us.gci" file is not found, it will download it from TPR's official [download](https://tprandomizer.com/downloads/) page. The TPR seeds themselves must be manually places into the seeds folder.
+ If the mod does not detect these folders, it will generate them automatically. Furthermore, if the "Randomizer.us.gci" file is not found, it will download it from TPR's official [download](https://tprandomizer.com/downloads/) page. The TPR seeds themselves must be manually placed into the seeds folder.
 
 #
  When loading your game, TPRandoLoader will auto-enable the REL Loader via an embedded Gecko Code. 
