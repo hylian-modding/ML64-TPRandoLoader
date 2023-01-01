@@ -20,11 +20,17 @@ class TPRandoLoader implements IPlugin {
     preinit() {
         if (!fs.existsSync('tpr')) {
             fs.mkdirSync(`tpr`);
-        }
-        if (!fs.existsSync('tpr/seeds')) {
+        } if (!fs.existsSync('tpr/seeds')) {
             fs.mkdirSync(`tpr/seeds`);
+        } if (!fs.existsSync('./saves')) {
+            fs.mkdirSync(`./saves`);
         } if (!fs.existsSync(`./saves/${this.ModLoader.clientLobby}`)) {
             fs.mkdirSync(`./saves/${this.ModLoader.clientLobby}`);
+        } if (!fs.existsSync(`./data/dolphin/GameSettings`)){
+            fs.mkdirSync(`./data`);
+            fs.mkdirSync(`./data/dolphin`);
+            fs.mkdirSync(`./data/dolphin/GameSettings`);
+            fs.writeFileSync(this.gameIniPath, Buffer.alloc(0));
         }
 
         let contents: string[] = fs.readdirSync('./tpr');
