@@ -10,7 +10,7 @@
   "keywords": [],
   "author": "Psi-Hate",
   "license": "ISC",
-  "updateUrl": "https://github.com/hylian-modding/ML64-TPRandoLoader/releases/TPRandoLoader.pak",
+  "updateUrl": "https://github.com/hylian-modding/ML64-TPRandoLoader/releases/download/1.0.0/TPRandoLoader.pak",
   "modloader64_deps": {
     "TwilightPrincess": "https://github.com/hylian-modding/Core-TwilightPrincess"
   },
