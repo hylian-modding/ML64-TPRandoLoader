@@ -12,9 +12,11 @@ class TPRandoLoader implements IPlugin {
 
     ModLoader!: IModLoaderAPI;
     randomizerGCI!: Buffer;
+    relLoaderGECKO!: Buffer;
     gameIniPath: string = "./data/dolphin/GameSettings/GZ2E01.ini";
     seedBuf: Buffer[] = [];
     seedContent: string[] = [];
+    saveContent: string[] = [];
     hasRecieved = false;
 
     preinit() {
@@ -26,58 +28,79 @@ class TPRandoLoader implements IPlugin {
             fs.mkdirSync(`./saves`);
         } if (!fs.existsSync(`./saves/${this.ModLoader.clientLobby}`)) {
             fs.mkdirSync(`./saves/${this.ModLoader.clientLobby}`);
-        } if (!fs.existsSync(`./data/dolphin/GameSettings`)){
-            fs.mkdirSync(`./data`);
-            fs.mkdirSync(`./data/dolphin`);
-            fs.mkdirSync(`./data/dolphin/GameSettings`);
+        } if (!fs.existsSync(`./data/dolphin/GameSettings`)) {
+            if (!fs.existsSync(`./data`)) fs.mkdirSync(`./data`);
+            if (!fs.existsSync(`./data/dolphin`)) fs.mkdirSync(`./data/dolphin`);
+            if (!fs.existsSync(`./data/dolphin/GameSettings`)) fs.mkdirSync(`./data/dolphin/GameSettings`);
             fs.writeFileSync(this.gameIniPath, Buffer.alloc(0));
         }
 
         let contents: string[] = fs.readdirSync('./tpr');
         this.seedContent = fs.readdirSync('./tpr/seeds');
-        let relLoader = fs.readFileSync(path.resolve(__dirname + "/REL_Loader", "REL_Loader_V2_US_Gecko.txt"), "utf8");
+        this.saveContent = fs.readdirSync(`./saves/${this.ModLoader.clientLobby}/`);
         let gameIni = fs.readFileSync(this.gameIniPath, "utf8")
         let newGameIni = gameIni;
 
-        if (!gameIni.includes(relLoader)) {
-            console.log("Adding REL Loader to GZ2E01.ini");
-            newGameIni = gameIni.concat(`\n[Gecko]\n${relLoader}`)
-        } else console.log("REL Loader already exists!");
-        let geckoEnabledIndex = newGameIni.indexOf("[Gecko_Enabled]");
-        if (geckoEnabledIndex > -1) {
-            if(newGameIni.lastIndexOf(`$REL Loader v2`) < geckoEnabledIndex){
-                console.log("Enabling REL Loader v2");
-                newGameIni = newGameIni.concat("\n$REL Loader v2");
-            } else console.log("REL Loader v2 is already enabled!");
+        if (contents.includes("Randomizer.us.gci")) {
+            console.log("Randomizer.us.gci exists!")
+            this.randomizerGCI = fs.readFileSync("./tpr/Randomizer.us.gci");
         } else {
-            console.log("Adding \"[Gecko_Enabled] $REL Loader v2\"")
-            newGameIni = newGameIni.concat("\n[Gecko_Enabled]\n$REL Loader v2");
+            console.log("Randomizer.us.gci not found! Please aquire this file from `https://tprandomizer.com/downloads/` !");
         }
 
-        fs.writeFileSync(this.gameIniPath, newGameIni);
+        if (contents.includes("REL_Loader.txt")) {
+            console.log("REL_Loader.txt exists!")
+            this.relLoaderGECKO = fs.readFileSync("./tpr/REL_Loader.txt");
+        } else {
+            console.log("REL_Loader.txt not found! Please aquire this file from `https://wiki.tprandomizer.com/index.php?title=REL_Loader` !");
+        }
 
-        for (let i = 0; i < contents.length; i++) {
-            if (contents[i] === "Randomizer.us.gci") {
-                console.log("Randomizer.us.gci exists!")
-                this.randomizerGCI = fs.readFileSync("./tpr/Randomizer.us.gci");
+        console.log("Cleaning old seeds from lobby...")
+        for (let i = 0; i < this.saveContent.length; i++) {
+            if (this.saveContent[i].includes('Tpr')) {
+                if (!this.seedContent.includes(this.saveContent[i])) {
+                    fs.unlinkSync(`./saves/${this.ModLoader.clientLobby}/${this.saveContent[i]}`);
+                }
             }
         }
+
         for (let i = 0; i < this.seedContent.length; i++) {
             if (this.seedContent[i].includes('Tpr')) {
                 this.seedBuf.push(fs.readFileSync(`./tpr/seeds/${this.seedContent[i]}`));
                 fs.writeFileSync(`./saves/${this.ModLoader.clientLobby}/${this.seedContent[i]}`, this.seedBuf[i]);
                 console.log(`Transferred seed ${this.seedContent[i]} to lobby ${this.ModLoader.clientLobby}`);
             }
-        }
 
-        if (this.randomizerGCI !== undefined) {
-            if (!fs.existsSync(`./saves/${this.ModLoader.clientLobby}`)) {
-                fs.mkdirSync(`./saves/${this.ModLoader.clientLobby}`);
+            if (this.randomizerGCI !== undefined) {
+                if (!fs.existsSync(`./saves/${this.ModLoader.clientLobby}`)) {
+                    fs.mkdirSync(`./saves/${this.ModLoader.clientLobby}`);
+                }
+                fs.writeFileSync(`./saves/${this.ModLoader.clientLobby}/Randomizer.us.gci`, this.randomizerGCI)
+            } else {
+                console.log("Randomizer.us.gci not found! Please aquire this file from `https://tprandomizer.com/downloads/` !");
             }
-            fs.writeFileSync(`./saves/${this.ModLoader.clientLobby}/Randomizer.us.gci`, this.randomizerGCI)
-        } else {
-            console.log("Downloading Randomizer.us.gci")
-            this.download("Randomizer.us.gci", "https://wiki.tprandomizer.com/images/b/b2/Randomizer.us.gci", `./saves/${this.ModLoader.clientLobby}/Randomizer.us.gci`);
+
+            let relLoader = this.relLoaderGECKO.toString();
+            let geckoEnabledIndex = newGameIni.indexOf("[Gecko_Enabled]");
+            let geckoIndex = newGameIni.indexOf("[Gecko]");
+            if (!gameIni.includes(relLoader)) {
+                if (geckoIndex > -1) {
+                    gameIni = gameIni.replace(gameIni.slice(geckoIndex + 7, geckoEnabledIndex), "\n");
+                }
+                console.log("Adding REL Loader to GZ2E01.ini");
+                newGameIni = gameIni.concat(`\n[Gecko]\n${relLoader}\n`)
+            }
+
+            if (geckoEnabledIndex > -1) {
+                if (newGameIni.lastIndexOf(`$REL Loader v2`) < geckoEnabledIndex) {
+                    console.log("Enabling REL Loader v2");
+                    newGameIni = newGameIni.concat("\n$REL Loader v2");
+                } else console.log("REL Loader v2 is already enabled!");
+            } else {
+                console.log("Adding \"[Gecko_Enabled] $REL Loader v2\"")
+                newGameIni = newGameIni.concat("\n[Gecko_Enabled]\n$REL Loader v2");
+            }
+            fs.writeFileSync(this.gameIniPath, newGameIni);
         }
     }
 
@@ -121,10 +144,6 @@ class TPRandoLoader implements IPlugin {
     @NetworkHandler('TPR_SeedPacket')
     onSeed(packet: TPR_SeedPacket) {
         if (!this.hasRecieved) {
-            console.log("Cleaning old seeds from lobby...")
-            for (let i = 0; i < this.seedContent.length; i++) {
-                fs.unlinkSync(`./saves/${this.ModLoader.clientLobby}/${this.seedContent[i]}`);
-            }
             console.log("Obtaining TPR Seeds...");
             for (let i = 0; i < packet.seed.length; i++) {
                 console.log(`Obtained ${packet.seedName[i]}`);
